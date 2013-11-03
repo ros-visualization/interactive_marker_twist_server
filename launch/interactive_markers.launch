@@ -1,8 +1,4 @@
 <launch>
-  <!-- turtlebot_teleop_key already has its own built in velocity smoother -->
-  <node pkg="turtlebot_interactive_markers" type="turtlebot_marker_server" name="turtlebot_marker_server">
-    <remap from="cmd_vel" to="cmd_vel_mux/input/teleop_raw"/>
+  <node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server">
   </node>
-  <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
-  <include file="$(find turtlebot_teleop)/launch/includes/velocity_smoother.launch.xml"/>
 </launch>

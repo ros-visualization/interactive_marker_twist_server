@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-project(turtlebot_interactive_markers)
+project(interactive_marker_twist_server)
 
 find_package(catkin REQUIRED COMPONENTS roscpp
                                         visualization_msgs
@@ -10,12 +10,12 @@ catkin_package()
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-add_executable(turtlebot_marker_server src/turtlebot_marker_server.cpp)
+add_executable(${PROJECT_NAME} src/marker_server)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES OUTPUT_NAME marker_server PREFIX "")
 
-target_link_libraries(turtlebot_marker_server ${catkin_LIBRARIES})
-
-install(TARGETS turtlebot_marker_server DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 

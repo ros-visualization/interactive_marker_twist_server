@@ -36,11 +36,11 @@
 
 using namespace visualization_msgs;
 
-class TurtlebotMarkerServer
+class MarkerServer
 {
   public:
-    TurtlebotMarkerServer()
-      : nh("~"), server("turtlebot_marker_server")
+    MarkerServer()
+      : nh("~"), server("twist_marker_server")
     {
       std::string cmd_vel_topic;
 
@@ -51,7 +51,7 @@ class TurtlebotMarkerServer
       vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
       createInteractiveMarkers();
 
-      ROS_INFO("[turtlebot_marker_server] Initialized.");
+      ROS_INFO("[twist_marker_server] Initialized.");
     }
 
     void processFeedback(
@@ -70,7 +70,7 @@ class TurtlebotMarkerServer
     std::string link_name;
 };
 
-void TurtlebotMarkerServer::processFeedback(
+void MarkerServer::processFeedback(
     const InteractiveMarkerFeedbackConstPtr &feedback )
 {
   // Handle angular change (yaw is the only direction in which you can rotate)
@@ -82,19 +82,18 @@ void TurtlebotMarkerServer::processFeedback(
 
   vel_pub.publish(vel);    
   
-  // Make the marker snap back to turtlebot
-  server.setPose("turtlebot_marker", geometry_msgs::Pose());
+  // Make the marker snap back to robot
+  server.setPose("twist_marker", geometry_msgs::Pose());
   
   server.applyChanges();
 }
 
-void TurtlebotMarkerServer::createInteractiveMarkers()
+void MarkerServer::createInteractiveMarkers()
 { 
   // create an interactive marker for our server
   InteractiveMarker int_marker;
   int_marker.header.frame_id = link_name;
-  int_marker.name = "turtlebot_marker";
-  //int_marker.description = "Move the turtlebot";
+  int_marker.name = "twist_marker";
   
   InteractiveMarkerControl control;
 
@@ -117,7 +116,7 @@ void TurtlebotMarkerServer::createInteractiveMarkers()
   //control.interaction_mode = InteractiveMarkerControl::ROTATE_AXIS;
   int_marker.controls.push_back(control);
 
-  // Commented out for non-holonomic turtlebot. If holonomic, can move in y.
+  // Commented out for non-holonomic robot. If holonomic, can move in y.
   /*control.orientation.w = 1;
   control.orientation.x = 0;
   control.orientation.y = 0;
@@ -126,7 +125,7 @@ void TurtlebotMarkerServer::createInteractiveMarkers()
   control.interaction_mode = InteractiveMarkerControl::MOVE_AXIS;
   int_marker.controls.push_back(control);*/
   
-  server.insert(int_marker, boost::bind( &TurtlebotMarkerServer::processFeedback, this, _1 ));
+  server.insert(int_marker, boost::bind( &MarkerServer::processFeedback, this, _1 ));
   
   server.applyChanges();
 }
@@ -134,8 +133,8 @@ void TurtlebotMarkerServer::createInteractiveMarkers()
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "turtlebot_marker_server");
-  TurtlebotMarkerServer turtleserver;
+  ros::init(argc, argv, "marker_server");
+  MarkerServer server;
   
   ros::spin();
 }
