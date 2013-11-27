@@ -45,8 +45,10 @@ class MarkerServer
       std::string cmd_vel_topic;
 
       nh.param<std::string>("link_name", link_name, "/base_link");
-      nh.param<double>("linear_scale", linear_scale, 1.0);
-      nh.param<double>("angular_scale", angular_scale, 2.2);
+      nh.param<std::string>("robot_name", robot_name, "robot");
+      nh.param<double>("linear_scale", linear_drive_scale, 1.0);
+      nh.param<double>("angular_scale", angular_drive_scale, 2.2);
+      nh.param<double>("marker_size_scale", marker_size_scale, 1.0);
 
       vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
       createInteractiveMarkers();
@@ -64,10 +66,13 @@ class MarkerServer
     ros::Publisher vel_pub;
     interactive_markers::InteractiveMarkerServer server;
     
-    double linear_scale;
-    double angular_scale;
+    double linear_drive_scale;
+    double angular_drive_scale;
+
+    double marker_size_scale;
     
     std::string link_name;
+    std::string robot_name;
 };
 
 void MarkerServer::processFeedback(
@@ -77,13 +82,13 @@ void MarkerServer::processFeedback(
   double yaw = tf::getYaw(feedback->pose.orientation);
   
   geometry_msgs::Twist vel;
-  vel.angular.z = angular_scale*yaw;
-  vel.linear.x = linear_scale*feedback->pose.position.x;
+  vel.angular.z = angular_drive_scale * yaw;
+  vel.linear.x = linear_drive_scale * feedback->pose.position.x;
 
   vel_pub.publish(vel);    
   
   // Make the marker snap back to robot
-  server.setPose("twist_marker", geometry_msgs::Pose());
+  server.setPose(robot_name + "_twist_marker", geometry_msgs::Pose());
   
   server.applyChanges();
 }
@@ -93,7 +98,9 @@ void MarkerServer::createInteractiveMarkers()
   // create an interactive marker for our server
   InteractiveMarker int_marker;
   int_marker.header.frame_id = link_name;
-  int_marker.name = "twist_marker";
+  int_marker.name = robot_name + "_twist_marker";
+  int_marker.description = "twist controller for " + robot_name;
+  int_marker.scale = marker_size_scale;
   
   InteractiveMarkerControl control;
 
