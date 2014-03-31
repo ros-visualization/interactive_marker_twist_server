@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 2.8.3)
 
 project(interactive_marker_twist_server)
 
-find_package(catkin REQUIRED COMPONENTS roscpp
-                                        visualization_msgs
-                                        interactive_markers)
+find_package(catkin REQUIRED COMPONENTS
+  interactive_markers
+  roscpp
+  roslaunch
+  roslint
+  visualization_msgs)
 
 catkin_package()
 
@@ -18,5 +21,8 @@ set_target_properties(${PROJECT_NAME}
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-
-
+if(CATKIN_ENABLE_TESTING)
+  roslaunch_add_file_check(launch/interactive_markers.launch
+    DEPENDENCIES marker_server)
+  roslint_cpp()
+endif()
