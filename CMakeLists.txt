@@ -25,4 +25,5 @@ if(CATKIN_ENABLE_TESTING)
   roslaunch_add_file_check(launch/interactive_markers.launch
     DEPENDENCIES marker_server)
   roslint_cpp()
+  roslint_add_test()
 endif()
