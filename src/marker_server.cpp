@@ -28,14 +28,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ros/ros.h>
 #include <interactive_markers/interactive_marker_server.h>
-#include <string.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
+#include <ros/ros.h>
 #include <tf/tf.h>
 
-using namespace visualization_msgs;
+#include <algorithm>
+#include <string>
+
+using visualization_msgs::InteractiveMarker;
+using visualization_msgs::InteractiveMarkerControl;
+using visualization_msgs::InteractiveMarkerFeedback;
 
 class MarkerServer
 {
@@ -63,32 +67,32 @@ class MarkerServer
     }
 
     void processFeedback(
-        const InteractiveMarkerFeedbackConstPtr &feedback );
-  
+        const InteractiveMarkerFeedback::ConstPtr &feedback);
+
   private:
     void createInteractiveMarkers();
-  
+
     ros::NodeHandle nh;
     ros::Publisher vel_pub;
     interactive_markers::InteractiveMarkerServer server;
-    
+
     double linear_drive_scale;
     double angular_drive_scale;
     double max_positive_linear_velocity;
     double max_negative_linear_velocity;
     double max_angular_velocity;
     double marker_size_scale;
-    
+
     std::string link_name;
     std::string robot_name;
 };
 
 void MarkerServer::processFeedback(
-    const InteractiveMarkerFeedbackConstPtr &feedback )
+    const InteractiveMarkerFeedback::ConstPtr &feedback )
 {
   // Handle angular change (yaw is the only direction in which you can rotate)
   double yaw = tf::getYaw(feedback->pose.orientation);
-  
+
   geometry_msgs::Twist vel;
   vel.angular.z = angular_drive_scale * yaw;
   vel.linear.x = linear_drive_scale * feedback->pose.position.x;
@@ -99,23 +103,23 @@ void MarkerServer::processFeedback(
   vel.angular.z = std::min(vel.angular.z, max_angular_velocity);
   vel.angular.z = std::max(vel.angular.z, -max_angular_velocity);
 
-  vel_pub.publish(vel);    
-  
+  vel_pub.publish(vel);
+
   // Make the marker snap back to robot
   server.setPose(robot_name + "_twist_marker", geometry_msgs::Pose());
-  
+
   server.applyChanges();
 }
 
 void MarkerServer::createInteractiveMarkers()
-{ 
+{
   // create an interactive marker for our server
   InteractiveMarker int_marker;
   int_marker.header.frame_id = link_name;
   int_marker.name = robot_name + "_twist_marker";
   int_marker.description = "twist controller for " + robot_name;
   int_marker.scale = marker_size_scale;
-  
+
   InteractiveMarkerControl control;
 
   control.orientation_mode = InteractiveMarkerControl::FIXED;
@@ -132,9 +136,9 @@ void MarkerServer::createInteractiveMarkers()
   control.orientation.y = 1;
   control.orientation.z = 0;
   control.name = "rotate_z";
-  
+
   control.interaction_mode = InteractiveMarkerControl::MOVE_ROTATE;
-  //control.interaction_mode = InteractiveMarkerControl::ROTATE_AXIS;
+  // control.interaction_mode = InteractiveMarkerControl::ROTATE_AXIS;
   int_marker.controls.push_back(control);
 
   // Commented out for non-holonomic robot. If holonomic, can move in y.
@@ -145,9 +149,9 @@ void MarkerServer::createInteractiveMarkers()
   control.name = "move_y";
   control.interaction_mode = InteractiveMarkerControl::MOVE_AXIS;
   int_marker.controls.push_back(control);*/
-  
-  server.insert(int_marker, boost::bind( &MarkerServer::processFeedback, this, _1 ));
-  
+
+  server.insert(int_marker, boost::bind(&MarkerServer::processFeedback, this, _1));
+
   server.applyChanges();
 }
 
@@ -156,6 +160,6 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "marker_server");
   MarkerServer server;
-  
+
   ros::spin();
 }
