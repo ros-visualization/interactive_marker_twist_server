@@ -47,9 +47,14 @@ class MarkerServer
 
       nh.param<std::string>("link_name", link_name, "/base_link");
       nh.param<std::string>("robot_name", robot_name, "robot");
+
       nh.param<double>("linear_scale", linear_drive_scale, 1.0);
       nh.param<double>("angular_scale", angular_drive_scale, 2.2);
       nh.param<double>("marker_size_scale", marker_size_scale, 1.0);
+
+      nh.param<double>("max_positive_linear_velocity", max_positive_linear_velocity, 1.0);
+      nh.param<double>("max_negative_linear_velocity", max_negative_linear_velocity, -1.0);
+      nh.param<double>("max_angular_velocity", max_angular_velocity, 2.2);
 
       vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
       createInteractiveMarkers();
@@ -69,7 +74,9 @@ class MarkerServer
     
     double linear_drive_scale;
     double angular_drive_scale;
-
+    double max_positive_linear_velocity;
+    double max_negative_linear_velocity;
+    double max_angular_velocity;
     double marker_size_scale;
     
     std::string link_name;
@@ -85,6 +92,12 @@ void MarkerServer::processFeedback(
   geometry_msgs::Twist vel;
   vel.angular.z = angular_drive_scale * yaw;
   vel.linear.x = linear_drive_scale * feedback->pose.position.x;
+
+  // Enforce parameterized speed limits
+  vel.linear.x = std::min(vel.linear.x, max_positive_linear_velocity);
+  vel.linear.x = std::max(vel.linear.x, max_negative_linear_velocity);
+  vel.angular.z = std::min(vel.angular.z, max_angular_velocity);
+  vel.angular.z = std::max(vel.angular.z, -max_angular_velocity);
 
   vel_pub.publish(vel);    
   
