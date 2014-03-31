@@ -56,7 +56,7 @@ class MarkerServer
       nh.param<double>("max_negative_linear_velocity", max_negative_linear_velocity, -1.0);
       nh.param<double>("max_angular_velocity", max_angular_velocity, 2.2);
 
-      vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+      vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
       createInteractiveMarkers();
 
       ROS_INFO("[twist_marker_server] Initialized.");
