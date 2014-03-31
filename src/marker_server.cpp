@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011, Willow Garage, Inc.
+ *           (c) 2013, Mike Purvis
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
