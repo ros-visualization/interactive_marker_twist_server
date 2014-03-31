@@ -2,8 +2,8 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2014-03-31)
+------------------
 * Add roslaunch file check, roslint
 * Make cmd_vel topic relative; fixes `#3 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/3>`_.
 * Max speed control, fixes `#1 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/1>`_
