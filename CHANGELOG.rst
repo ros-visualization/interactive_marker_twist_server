@@ -2,6 +2,14 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add roslaunch file check, roslint
+* Make cmd_vel topic relative; fixes `#3 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/3>`_.
+* Max speed control, fixes `#1 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/1>`_
+* Update copyright.
+* Contributors: Mike Purvis
+
 0.0.1 (2013-11-27)
 ------------------
 * Parameterize robot's name and the size of the resulting markers.
