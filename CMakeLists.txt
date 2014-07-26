@@ -9,21 +9,30 @@ find_package(catkin REQUIRED COMPONENTS
   roslint
   visualization_msgs)
 
-catkin_package()
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+)
 
-include_directories(${catkin_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(${PROJECT_NAME} src/marker_server)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-set_target_properties(${PROJECT_NAME}
+add_library(${PROJECT_NAME} src/marker_server)
+
+add_executable(${PROJECT_NAME}_node src/marker_server_node)
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${catkin_LIBRARIES})
+set_target_properties(${PROJECT_NAME}_node
   PROPERTIES OUTPUT_NAME marker_server PREFIX "")
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 if(CATKIN_ENABLE_TESTING)
   roslaunch_add_file_check(launch/interactive_markers.launch
-    DEPENDENCIES marker_server)
+    DEPENDENCIES ${PROJECT_NAME}_node)
   roslint_cpp()
   roslint_add_test()
 endif()
