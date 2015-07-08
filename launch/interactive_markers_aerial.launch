@@ -1,5 +1,0 @@
-<launch>
-  <node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server">
-    <rosparam command="load" file="$(find interactive_marker_twist_server)/config/aerial.yaml" />
-  </node>
-</launch>
