@@ -24,6 +24,10 @@ install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 if(CATKIN_ENABLE_TESTING)
   roslaunch_add_file_check(launch/interactive_markers.launch
     DEPENDENCIES marker_server)
+  roslaunch_add_file_check(launch/interactive_markers_aerial.launch
+    DEPENDENCIES marker_server)
+  roslaunch_add_file_check(launch/interactive_markers_holonomic.launch
+    DEPENDENCIES marker_server)
   roslint_cpp()
   roslint_add_test()
 endif()
