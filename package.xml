@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>interactive_marker_twist_server</name>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <description>Interactive control for generic Twist-based robots using interactive markers</description>
   <maintainer email="mpurvis@clearpathrobotics.com">Mike Purvis</maintainer>
   <license>BSD</license>

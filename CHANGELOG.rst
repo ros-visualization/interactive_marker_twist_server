@@ -2,8 +2,8 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2016-12-20)
+------------------
 * Added additional degrees of freedom (YZ) to linear interactive markers. (`#7 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/7>`_)
 * Fix YZ rotation. (`#6 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/6>`_)
 * Contributors: Mike Purvis, Paul Bovbel, Tony Baltovski
