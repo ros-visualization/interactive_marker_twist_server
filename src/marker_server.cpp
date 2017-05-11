@@ -31,6 +31,7 @@
 #include <interactive_markers/interactive_marker_server.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Point.h>
 #include <ros/ros.h>
 #include <tf/tf.h>
 
@@ -52,6 +53,9 @@ class MarkerServer
 
       nh.param<std::string>("link_name", link_name, "/base_link");
       nh.param<std::string>("robot_name", robot_name, "robot");
+      nh.param<double>("link_offset/x", link_offset.x, 0);
+      nh.param<double>("link_offset/y", link_offset.y, 0);
+      nh.param<double>("link_offset/z", link_offset.z, 0);
 
       if (nh.getParam("linear_scale", linear_drive_scale_map))
       {
@@ -94,6 +98,8 @@ class MarkerServer
     double max_angular_velocity;
     double marker_size_scale;
 
+    geometry_msgs::Point link_offset;
+
     std::string link_name;
     std::string robot_name;
 };
@@ -131,7 +137,9 @@ void MarkerServer::processFeedback(
   vel_pub.publish(vel);
 
   // Make the marker snap back to robot
-  server.setPose(robot_name + "_twist_marker", geometry_msgs::Pose());
+  geometry_msgs::Pose updated_pose;
+  updated_pose.position = link_offset;
+  server.setPose(robot_name + "_twist_marker", updated_pose);
 
   server.applyChanges();
 }
@@ -144,6 +152,9 @@ void MarkerServer::createInteractiveMarkers()
   int_marker.name = robot_name + "_twist_marker";
   int_marker.description = "twist controller for " + robot_name;
   int_marker.scale = marker_size_scale;
+
+  // Add any offsets to the marker position.
+  int_marker.pose.position = link_offset;
 
   InteractiveMarkerControl control;
 
@@ -187,8 +198,6 @@ void MarkerServer::createInteractiveMarkers()
   control.name = "rotate_z";
   control.interaction_mode = InteractiveMarkerControl::ROTATE_AXIS;
   int_marker.controls.push_back(control);
-
-
 
   server.insert(int_marker, boost::bind(&MarkerServer::processFeedback, this, _1));
 
