@@ -19,7 +19,7 @@ set_target_properties(${PROJECT_NAME}
   PROPERTIES OUTPUT_NAME marker_server PREFIX "")
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY launch config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 if(CATKIN_ENABLE_TESTING)
   roslaunch_add_file_check(launch/interactive_markers.launch
