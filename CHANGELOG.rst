@@ -2,6 +2,12 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed CMake warning and updated to package format 2. (`#11 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/11>`_)
+* Install the default config files. (`#10 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/10>`_)
+* Contributors: Tony Baltovski
+
 1.1.0 (2016-12-20)
 ------------------
 * Added additional degrees of freedom (YZ) to linear interactive markers. (`#7 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/7>`_)
