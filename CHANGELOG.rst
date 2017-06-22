@@ -2,8 +2,8 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2017-06-22)
+------------------
 * Fixed CMake warning and updated to package format 2. (`#11 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/11>`_)
 * Install the default config files. (`#10 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/10>`_)
 * Contributors: Tony Baltovski
