@@ -5,8 +5,6 @@ project(interactive_marker_twist_server)
 find_package(catkin REQUIRED COMPONENTS
   interactive_markers
   roscpp
-  roslaunch
-  roslint
   visualization_msgs)
 
 catkin_package()
