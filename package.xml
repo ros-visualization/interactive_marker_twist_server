@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>interactive_marker_twist_server</name>
   <version>1.1.0</version>
   <description>Interactive control for generic Twist-based robots using interactive markers</description>
@@ -8,16 +8,13 @@
 
   <url type="repository">https://github.com/ros-visualization/interactive_marker_twist_server</url>
   <url type="bugtracker">https://github.com/ros-visualization/interactive_marker_twist_server/issues</url>
-  
-  <buildtool_depend>catkin</buildtool_depend>
-  
-  <build_depend>interactive_markers</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>roslaunch</build_depend>
-  <build_depend>roslint</build_depend>
-  <build_depend>visualization_msgs</build_depend>
 
-  <run_depend>interactive_markers</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>visualization_msgs</run_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>interactive_markers</depend>
+  <depend>roscpp</depend>
+  <depend>visualization_msgs</depend>
+
+  <test_depend>roslaunch</test_depend>
+  <test_depend>roslint</test_depend>
 </package>
