@@ -13,6 +13,7 @@
 
   <depend>interactive_markers</depend>
   <depend>roscpp</depend>
+  <depend>tf</depend>
   <depend>visualization_msgs</depend>
 
   <test_depend>roslaunch</test_depend>
