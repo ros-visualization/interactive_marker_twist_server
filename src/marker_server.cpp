@@ -50,7 +50,7 @@ class MarkerServer
     {
       std::string cmd_vel_topic;
 
-      nh.param<std::string>("link_name", link_name, "/base_link");
+      nh.param<std::string>("link_name", link_name, "base_link");
       nh.param<std::string>("robot_name", robot_name, "robot");
 
       if (nh.getParam("linear_scale", linear_drive_scale_map))
