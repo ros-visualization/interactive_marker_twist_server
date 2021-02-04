@@ -2,8 +2,8 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.2 (2021-02-03)
+------------------
 * Remove the leading '/' from the default link; this causes errors in Noetic
 * Bump CMake version to avoid CMP0048 warning.
 * Contributors: Chris Iverach-Brereton, Tony Baltovski
