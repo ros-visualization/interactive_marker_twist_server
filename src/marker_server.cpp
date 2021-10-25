@@ -48,8 +48,6 @@ class MarkerServer
     MarkerServer()
       : nh("~"), server("twist_marker_server")
     {
-      std::string cmd_vel_topic;
-
       nh.param<std::string>("link_name", link_name, "base_link");
       nh.param<std::string>("robot_name", robot_name, "robot");
 
