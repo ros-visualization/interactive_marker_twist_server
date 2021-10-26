@@ -101,29 +101,33 @@ void MarkerServer::processFeedback(
 {
   geometry_msgs::Twist vel;
 
-  // Handle angular change (yaw is the only direction in which you can rotate)
-  double yaw = tf::getYaw(feedback->pose.orientation);
-  vel.angular.z = angular_drive_scale * yaw;
-  vel.angular.z = std::min(vel.angular.z,  max_angular_velocity);
-  vel.angular.z = std::max(vel.angular.z, -max_angular_velocity);
+  // If mouse is released, publish zero cmd_vel
+  if (feedback->event_type != visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP)
+  {
+    // Handle angular change (yaw is the only direction in which you can rotate)
+    double yaw = tf::getYaw(feedback->pose.orientation);
+    vel.angular.z = angular_drive_scale * yaw;
+    vel.angular.z = std::min(vel.angular.z,  max_angular_velocity);
+    vel.angular.z = std::max(vel.angular.z, -max_angular_velocity);
 
-  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
-  {
-    vel.linear.x = linear_drive_scale_map["x"] * feedback->pose.position.x;
-    vel.linear.x = std::min(vel.linear.x, max_positive_linear_velocity_map["x"]);
-    vel.linear.x = std::max(vel.linear.x, max_negative_linear_velocity_map["x"]);
-  }
-  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
-  {
-    vel.linear.y = linear_drive_scale_map["y"] * feedback->pose.position.y;
-    vel.linear.y = std::min(vel.linear.y, max_positive_linear_velocity_map["y"]);
-    vel.linear.y = std::max(vel.linear.y, max_negative_linear_velocity_map["y"]);
-  }
-  if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
-  {
-    vel.linear.z = linear_drive_scale_map["z"] * feedback->pose.position.z;
-    vel.linear.z = std::min(vel.linear.z, max_positive_linear_velocity_map["z"]);
-    vel.linear.z = std::max(vel.linear.z, max_negative_linear_velocity_map["z"]);
+    if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
+    {
+      vel.linear.x = linear_drive_scale_map["x"] * feedback->pose.position.x;
+      vel.linear.x = std::min(vel.linear.x, max_positive_linear_velocity_map["x"]);
+      vel.linear.x = std::max(vel.linear.x, max_negative_linear_velocity_map["x"]);
+    }
+    if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
+    {
+      vel.linear.y = linear_drive_scale_map["y"] * feedback->pose.position.y;
+      vel.linear.y = std::min(vel.linear.y, max_positive_linear_velocity_map["y"]);
+      vel.linear.y = std::max(vel.linear.y, max_negative_linear_velocity_map["y"]);
+    }
+    if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
+    {
+      vel.linear.z = linear_drive_scale_map["z"] * feedback->pose.position.z;
+      vel.linear.z = std::min(vel.linear.z, max_positive_linear_velocity_map["z"]);
+      vel.linear.z = std::max(vel.linear.z, max_negative_linear_velocity_map["z"]);
+    }
   }
 
   vel_pub.publish(vel);
