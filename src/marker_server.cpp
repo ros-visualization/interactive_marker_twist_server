@@ -1,32 +1,31 @@
-/*
- * Copyright (c) 2011, Willow Garage, Inc.
- *           (c) 2013, Mike Purvis
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
- *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
+// Copyright (c) 2011, Willow Garage, Inc.
+// All rights reserved.
+//
+// Software License Agreement (BSD License 2.0)
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Willow Garage, Inc. nor the names of its
+//       contributors may be used to endorse or promote products derived from
+//       this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
@@ -43,7 +42,7 @@ namespace interactive_marker_twist_server
 class TwistServerNode : public rclcpp::Node
 {
 public:
-  TwistServerNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
+  TwistServerNode();
 
   ~TwistServerNode() = default;
 
@@ -55,9 +54,12 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr vel_pub;
   std::unique_ptr<interactive_markers::InteractiveMarkerServer> server;
 
-  std::map<std::string, double> linear_drive_scale_map;
+  /*std::map<std::string, double> linear_drive_scale_map;
   std::map<std::string, double> max_positive_linear_velocity_map;
-  std::map<std::string, double> max_negative_linear_velocity_map;
+  std::map<std::string, double> max_negative_linear_velocity_map;*/
+  double linear_drive_scale_map;
+  double max_positive_linear_velocity_map;
+  double max_negative_linear_velocity_map;
 
   double angular_drive_scale;
   double max_angular_velocity;
@@ -67,7 +69,7 @@ private:
   std::string robot_name;
 }; // class TwistServerNode
 
-TwistServerNode::TwistServerNode(const rclcpp::NodeOptions & options) : rclcpp::Node("twist_server_node", options)
+TwistServerNode::TwistServerNode() : rclcpp::Node("twist_server_node")
 {
   getParameters();
   vel_pub = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 1);
@@ -78,43 +80,53 @@ TwistServerNode::TwistServerNode(const rclcpp::NodeOptions & options) : rclcpp::
 
 void TwistServerNode::getParameters()
 {
-  this->declare_parameter<std::string>("link_name", "base_link");
-  //nh.param<std::string>("link_name", link_name, "base_link");
-  this->declare_parameter<std::string>("robot_name", "robot");
-  //nh.param<std::string>("robot_name", robot_name, "robot");
+  rclcpp::Parameter link_name_param;
+  rclcpp::Parameter robot_name_param;
+  rclcpp::Parameter linear_scale_param;
+  rclcpp::Parameter max_positive_linear_velocity_param;
+  rclcpp::Parameter max_negative_linear_velocity_param;
 
-  //this->get_parameter("linear_scale", linear_drive_scale_map);
-  /*if (this->get_parameter("linear_scale", linear_drive_scale_map))
-  //if (nh.getParam("linear_scale", linear_drive_scale_map))
+  if (this->get_parameter("link_name", link_name_param))
   {
-    //nh.getParam("linear_scale", linear_drive_scale_map);
-    this->get_parameter("linear_scale", linear_drive_scale_map);
-    //nh.getParam("max_positive_linear_velocity", max_positive_linear_velocity_map);
-    this->get_parameter("max_positive_linear_velocity", max_positive_linear_velocity_map);
-    //nh.getParam("max_negative_linear_velocity", max_negative_linear_velocity_map);
-    this->get_parameter("max_negative_linear_velocity", max_negative_linear_velocity_map);
+    link_name = link_name_param.as_string();
   }
   else
   {
-    this->declare_parameter<double>("linear_scale", 1.0);
-    this->declare_parameter<double>("max_positive_linear_velocity", 1.0);
-    this->declare_parameter<double>("max_negative_linear_velocity", -1.0);
-    //nh.param<double>("linear_scale", linear_drive_scale_map["x"], 1.0);
-    //nh.param<double>("max_positive_linear_velocity", max_positive_linear_velocity_map["x"],  1.0);
-    //nh.param<double>("max_negative_linear_velocity", max_negative_linear_velocity_map["x"], -1.0);
+    link_name = "base_link";
   }
 
-  this->declare_parameter<double>("angular_scale", 2.2);
-  this->declare_parameter<double>("max_angular_velocity", 2.2);
-  this->declare_parameter<double>("marker_size_scale", 1.0);
-  //nh.param<double>("angular_scale", angular_drive_scale, 2.2);
-  //nh.param<double>("max_angular_velocity", max_angular_velocity, 2.2);
-  //nh.param<double>("marker_size_scale", marker_size_scale, 1.0);*/
+  if (this->get_parameter("robot_name", robot_name_param))
+  {
+    robot_name = robot_name_param.as_string();
+  }
+  else
+  {
+    robot_name = "robot";
+  }
+
+  if (this->get_parameter("linear_scale", linear_scale_param))
+  {
+    this->get_parameter("max_positive_linear_velocity", max_positive_linear_velocity_param);
+    this->get_parameter("max_negative_linear_velocity", max_negative_linear_velocity_param);
+    linear_drive_scale_map = linear_scale_param.as_double();
+    max_positive_linear_velocity_map = max_positive_linear_velocity_param.as_double();
+    max_negative_linear_velocity_map = max_negative_linear_velocity_param.as_double();
+  }
+  else
+  {
+    linear_drive_scale_map = 1.0;
+    max_positive_linear_velocity_map = 1.0;
+    max_negative_linear_velocity_map = -1.0;
+  }
+
+  angular_drive_scale = 2.2;
+  max_angular_velocity = 2.2;
+  marker_size_scale = 1.0;
 }
 
 void TwistServerNode::createInteractiveMarkers()
 {
-  visualization_msgs::msg::InteractiveMarker interactive_marker;
+  /*visualization_msgs::msg::InteractiveMarker interactive_marker;
   interactive_marker.header.frame_id = link_name;
   interactive_marker.name = robot_name + "_twist_marker";
   interactive_marker.description = "twist controller for " + robot_name;
@@ -161,9 +173,9 @@ void TwistServerNode::createInteractiveMarkers()
   control.orientation.z = 0;
   control.name = "rotate_z";
   control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::ROTATE_AXIS;
-  interactive_marker.controls.push_back(control);
+  interactive_marker.controls.push_back(control);*/
 
-  /*visualization_msgs::msg::InteractiveMarker interactive_marker;
+  visualization_msgs::msg::InteractiveMarker interactive_marker;
   interactive_marker.header.frame_id = "base_link";
   interactive_marker.header.stamp = get_clock()->now();
   interactive_marker.name = "my_marker";
@@ -189,7 +201,7 @@ void TwistServerNode::createInteractiveMarkers()
   rotate_control.name = "move_x";
   rotate_control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
 
-  interactive_marker.controls.push_back(rotate_control);*/
+  interactive_marker.controls.push_back(rotate_control);
 
   server->insert(interactive_marker);
   server->setCallback(interactive_marker.name, std::bind(&TwistServerNode::processFeedback, this, std::placeholders::_1));
@@ -206,7 +218,7 @@ void TwistServerNode::processFeedback(const visualization_msgs::msg::Interactive
   vel_msg.angular.z = std::min(vel_msg.angular.z,  max_angular_velocity);
   vel_msg.angular.z = std::max(vel_msg.angular.z, -max_angular_velocity);
 
-  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
+  /*if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
   {
     vel_msg.linear.x = linear_drive_scale_map["x"] * feedback->pose.position.x;
     vel_msg.linear.x = std::min(vel_msg.linear.x, max_positive_linear_velocity_map["x"]);
@@ -223,7 +235,7 @@ void TwistServerNode::processFeedback(const visualization_msgs::msg::Interactive
     vel_msg.linear.z = linear_drive_scale_map["z"] * feedback->pose.position.z;
     vel_msg.linear.z = std::min(vel_msg.linear.z, max_positive_linear_velocity_map["z"]);
     vel_msg.linear.z = std::max(vel_msg.linear.z, max_negative_linear_velocity_map["z"]);
-  }
+  }*/
 
   vel_pub->publish(vel_msg);
 
