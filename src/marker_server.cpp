@@ -46,10 +46,11 @@ public:
 
   ~TwistServerNode() = default;
 
+  void processFeedback(const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr &feedback);
+
 private:
   void getParameters();
   void createInteractiveMarkers();
-  void processFeedback(const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr &feedback);
 
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr vel_pub;
   std::unique_ptr<interactive_markers::InteractiveMarkerServer> server;
@@ -60,7 +61,6 @@ private:
 
   double angular_drive_scale;
   double max_angular_velocity;
-  double marker_size_scale;
 
   std::string link_name;
   std::string robot_name;
@@ -74,8 +74,8 @@ TwistServerNode::TwistServerNode() : rclcpp::Node("twist_server_node")
   createInteractiveMarkers();
   RCLCPP_INFO(get_logger(), "[interacive_marker_twist_server] Initialized.");
 }
-
 void TwistServerNode::getParameters()
+
 {
   rclcpp::Parameter link_name_param;
   rclcpp::Parameter robot_name_param;
