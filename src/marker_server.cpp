@@ -68,21 +68,18 @@ private:
   std::string robot_name;
 }; // class TwistServerNode
 
-TwistServerNode::TwistServerNode() : rclcpp::Node("twist_server_node"), server(std::make_unique<interactive_markers::InteractiveMarkerServer>("twist_server", get_node_base_interface(), get_node_clock_interface(), get_node_logging_interface(), get_node_topics_interface(), get_node_services_interface()))
+TwistServerNode::TwistServerNode() : rclcpp::Node("twist_server_node", rclcpp::NodeOptions().allow_undeclared_parameters(true).automatically_declare_parameters_from_overrides(true)), server(std::make_unique<interactive_markers::InteractiveMarkerServer>("twist_server", get_node_base_interface(), get_node_clock_interface(), get_node_logging_interface(), get_node_topics_interface(), get_node_services_interface()))
 {
   getParameters();
   vel_pub = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 1);
   createInteractiveMarkers();
-  RCLCPP_INFO(get_logger(), "[interacive_marker_twist_server] Initialized.");
+  RCLCPP_INFO(get_logger(), "[interactive_marker_twist_server] Initialized.");
 }
 
 void TwistServerNode::getParameters()
 {
   rclcpp::Parameter link_name_param;
   rclcpp::Parameter robot_name_param;
-  rclcpp::Parameter linear_scale_param;
-  rclcpp::Parameter max_positive_linear_velocity_param;
-  rclcpp::Parameter max_negative_linear_velocity_param;
 
   if (this->get_parameter("link_name", link_name_param))
   {
@@ -102,13 +99,11 @@ void TwistServerNode::getParameters()
     robot_name = "robot";
   }
 
-  if (this->get_parameter("linear_scale", linear_scale_param))
+  // Ensure parameters are loaded correctly, otherwise, manually set values for linear config
+  if (this->get_parameters("linear_scale", linear_drive_scale_map))
   {
-    this->get_parameter("max_positive_linear_velocity", max_positive_linear_velocity_param);
-    this->get_parameter("max_negative_linear_velocity", max_negative_linear_velocity_param);
-    linear_drive_scale_map["x"] = linear_scale_param.as_double();
-    max_positive_linear_velocity_map["x"] = max_positive_linear_velocity_param.as_double();
-    max_negative_linear_velocity_map["x"] = max_negative_linear_velocity_param.as_double();
+    this->get_parameters("max_positive_linear_velocity", max_positive_linear_velocity_map);
+    this->get_parameters("max_negative_linear_velocity", max_negative_linear_velocity_map);
   }
   else
   {
@@ -143,9 +138,10 @@ void TwistServerNode::createInteractiveMarkers()
     control.name = "move_x";
     control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
     interactive_marker.controls.push_back(control);
+    RCLCPP_INFO(get_logger(), "Got x");
   }
 
-  /*if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
+  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
   {
     control.orientation.w = 1;
     control.orientation.x = 0;
@@ -154,6 +150,7 @@ void TwistServerNode::createInteractiveMarkers()
     control.name = "move_y";
     control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
     interactive_marker.controls.push_back(control);
+    RCLCPP_INFO(get_logger(), "Got y");
   }
 
   if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
@@ -165,7 +162,8 @@ void TwistServerNode::createInteractiveMarkers()
     control.name = "move_z";
     control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
     interactive_marker.controls.push_back(control);
-  }*/
+    RCLCPP_INFO(get_logger(), "Got z");
+  }
 
   control.orientation.w = 1;
   control.orientation.x = 0;
@@ -197,7 +195,7 @@ void TwistServerNode::processFeedback(const visualization_msgs::msg::Interactive
     vel_msg.linear.x = std::max(vel_msg.linear.x, max_negative_linear_velocity_map["x"]);
   }
   
-  /*if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
+  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
   {
     vel_msg.linear.y = linear_drive_scale_map["y"] * feedback->pose.position.y;
     vel_msg.linear.y = std::min(vel_msg.linear.y, max_positive_linear_velocity_map["y"]);
@@ -209,7 +207,7 @@ void TwistServerNode::processFeedback(const visualization_msgs::msg::Interactive
     vel_msg.linear.z = linear_drive_scale_map["z"] * feedback->pose.position.z;
     vel_msg.linear.z = std::min(vel_msg.linear.z, max_positive_linear_velocity_map["z"]);
     vel_msg.linear.z = std::max(vel_msg.linear.z, max_negative_linear_velocity_map["z"]);
-  }*/
+  }
 
   vel_pub->publish(vel_msg);
 
