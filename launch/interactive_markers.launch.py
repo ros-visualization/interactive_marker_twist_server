@@ -6,11 +6,18 @@ from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-def generate_launch_description():    
+def generate_launch_description():
+    config = PathJoinSubstitution(
+        [FindPackageShare("interactive_marker_twist_server"),
+        "config",
+        "linear.yaml"],
+    )
+    
     node_interactive_marker_twist_server = Node(
-        package="my_package",
-        executable="my_node",
-        name="twist_marker_server",
+        package="interactive_marker_twist_server",
+        executable="interactive_marker_twist_server",
+        name="twist_server_node",
+        parameters=[config],
         output="screen",
     )
 
