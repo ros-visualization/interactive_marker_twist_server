@@ -10,12 +10,12 @@ def generate_launch_description():
     config = PathJoinSubstitution(
         [FindPackageShare("interactive_marker_twist_server"),
         "config",
-        "linear.yaml"],
+        "aerial.yaml"],
     )
     
     node_interactive_marker_twist_server = Node(
         package="interactive_marker_twist_server",
-        executable="interactive_marker_twist_server",
+        executable="marker_server",
         name="twist_server_node",
         parameters=[config],
         output="screen",
