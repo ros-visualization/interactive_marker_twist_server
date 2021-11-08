@@ -37,6 +37,10 @@
 #include <interactive_markers/interactive_marker_server.hpp>
 #include <tf2/utils.h>
 
+#include <algorithm>
+#include <string>
+#include <map>
+
 namespace interactive_marker_twist_server
 {
 
