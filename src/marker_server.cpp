@@ -71,7 +71,7 @@ private:
 TwistServerNode::TwistServerNode() : rclcpp::Node("twist_server_node", rclcpp::NodeOptions().allow_undeclared_parameters(true).automatically_declare_parameters_from_overrides(true)), server(std::make_unique<interactive_markers::InteractiveMarkerServer>("twist_server", get_node_base_interface(), get_node_clock_interface(), get_node_logging_interface(), get_node_topics_interface(), get_node_services_interface()))
 {
   getParameters();
-  vel_pub = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 1);
+  vel_pub = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
   createInteractiveMarkers();
   RCLCPP_INFO(get_logger(), "[interactive_marker_twist_server] Initialized.");
 }
@@ -138,7 +138,6 @@ void TwistServerNode::createInteractiveMarkers()
     control.name = "move_x";
     control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
     interactive_marker.controls.push_back(control);
-    RCLCPP_INFO(get_logger(), "Got x");
   }
 
   if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
@@ -150,7 +149,6 @@ void TwistServerNode::createInteractiveMarkers()
     control.name = "move_y";
     control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
     interactive_marker.controls.push_back(control);
-    RCLCPP_INFO(get_logger(), "Got y");
   }
 
   if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
@@ -162,7 +160,6 @@ void TwistServerNode::createInteractiveMarkers()
     control.name = "move_z";
     control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
     interactive_marker.controls.push_back(control);
-    RCLCPP_INFO(get_logger(), "Got z");
   }
 
   control.orientation.w = 1;
@@ -222,8 +219,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = std::make_shared<interactive_marker_twist_server::TwistServerNode>();
-  // Single or Multi?
-  rclcpp::executors::MultiThreadedExecutor executor;
+  rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(node);
   executor.spin();
   rclcpp::shutdown();
