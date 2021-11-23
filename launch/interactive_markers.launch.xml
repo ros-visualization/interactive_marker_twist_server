@@ -1,0 +1,6 @@
+<launch>
+  <arg name="config" default="linear" />
+  <node pkg="interactive_marker_twist_server" exec="marker_server" name="twist_server_node" output="screen">
+      <param from="$(find-pkg-share interactive_marker_twist_server)/config/$(var config).yaml"/>
+  </node>
+</launch>
