@@ -28,124 +28,110 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <interactive_markers/interactive_marker_server.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/Pose.h>
-#include <ros/ros.h>
-#include <tf/tf.h>
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <visualization_msgs/msg/interactive_marker.hpp>
+#include <visualization_msgs/msg/interactive_marker_control.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <interactive_markers/interactive_marker_server.hpp>
+#include <tf2/utils.h>
 
 #include <algorithm>
 #include <string>
 #include <map>
 
-using visualization_msgs::InteractiveMarker;
-using visualization_msgs::InteractiveMarkerControl;
-using visualization_msgs::InteractiveMarkerFeedback;
-
-class MarkerServer
+namespace interactive_marker_twist_server
 {
-  public:
-    MarkerServer()
-      : nh("~"), server("twist_marker_server")
-    {
-      nh.param<std::string>("link_name", link_name, "base_link");
-      nh.param<std::string>("robot_name", robot_name, "robot");
 
-      if (nh.getParam("linear_scale", linear_drive_scale_map))
-      {
-        nh.getParam("linear_scale", linear_drive_scale_map);
-        nh.getParam("max_positive_linear_velocity", max_positive_linear_velocity_map);
-        nh.getParam("max_negative_linear_velocity", max_negative_linear_velocity_map);
-      }
-      else
-      {
-        nh.param<double>("linear_scale", linear_drive_scale_map["x"], 1.0);
-        nh.param<double>("max_positive_linear_velocity", max_positive_linear_velocity_map["x"],  1.0);
-        nh.param<double>("max_negative_linear_velocity", max_negative_linear_velocity_map["x"], -1.0);
-      }
-
-      nh.param<double>("angular_scale", angular_drive_scale, 2.2);
-      nh.param<double>("max_angular_velocity", max_angular_velocity, 2.2);
-      nh.param<double>("marker_size_scale", marker_size_scale, 1.0);
-
-      vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-      createInteractiveMarkers();
-
-      ROS_INFO("[twist_marker_server] Initialized.");
-    }
-
-    void processFeedback(
-        const InteractiveMarkerFeedback::ConstPtr &feedback);
-
-  private:
-    void createInteractiveMarkers();
-
-    ros::NodeHandle nh;
-    ros::Publisher vel_pub;
-    interactive_markers::InteractiveMarkerServer server;
-
-    std::map<std::string, double> linear_drive_scale_map;
-    std::map<std::string, double> max_positive_linear_velocity_map;
-    std::map<std::string, double> max_negative_linear_velocity_map;
-
-    double angular_drive_scale;
-    double max_angular_velocity;
-    double marker_size_scale;
-
-    std::string link_name;
-    std::string robot_name;
-};
-
-void MarkerServer::processFeedback(
-    const InteractiveMarkerFeedback::ConstPtr &feedback )
+class TwistServerNode : public rclcpp::Node
 {
-  geometry_msgs::Twist vel;
+public:
+  TwistServerNode();
 
-  // Handle angular change (yaw is the only direction in which you can rotate)
-  double yaw = tf::getYaw(feedback->pose.orientation);
-  vel.angular.z = angular_drive_scale * yaw;
-  vel.angular.z = std::min(vel.angular.z,  max_angular_velocity);
-  vel.angular.z = std::max(vel.angular.z, -max_angular_velocity);
+  ~TwistServerNode() = default;
 
-  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
-  {
-    vel.linear.x = linear_drive_scale_map["x"] * feedback->pose.position.x;
-    vel.linear.x = std::min(vel.linear.x, max_positive_linear_velocity_map["x"]);
-    vel.linear.x = std::max(vel.linear.x, max_negative_linear_velocity_map["x"]);
-  }
-  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
-  {
-    vel.linear.y = linear_drive_scale_map["y"] * feedback->pose.position.y;
-    vel.linear.y = std::min(vel.linear.y, max_positive_linear_velocity_map["y"]);
-    vel.linear.y = std::max(vel.linear.y, max_negative_linear_velocity_map["y"]);
-  }
-  if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
-  {
-    vel.linear.z = linear_drive_scale_map["z"] * feedback->pose.position.z;
-    vel.linear.z = std::min(vel.linear.z, max_positive_linear_velocity_map["z"]);
-    vel.linear.z = std::max(vel.linear.z, max_negative_linear_velocity_map["z"]);
-  }
+  void processFeedback(const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr &feedback);
+  
+private:
+  void getParameters();
+  void createInteractiveMarkers();
 
-  vel_pub.publish(vel);
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr vel_pub;
+  std::unique_ptr<interactive_markers::InteractiveMarkerServer> server;
 
-  // Make the marker snap back to robot
-  server.setPose(robot_name + "_twist_marker", geometry_msgs::Pose());
+  std::map<std::string, double> linear_drive_scale_map;
+  std::map<std::string, double> max_positive_linear_velocity_map;
+  std::map<std::string, double> max_negative_linear_velocity_map;
 
-  server.applyChanges();
+  double angular_drive_scale;
+  double max_angular_velocity;
+  double marker_size_scale;
+
+  std::string link_name;
+  std::string robot_name;
+}; // class TwistServerNode
+
+TwistServerNode::TwistServerNode() : rclcpp::Node("twist_server_node", rclcpp::NodeOptions().allow_undeclared_parameters(true).automatically_declare_parameters_from_overrides(true)), server(std::make_unique<interactive_markers::InteractiveMarkerServer>("twist_server", get_node_base_interface(), get_node_clock_interface(), get_node_logging_interface(), get_node_topics_interface(), get_node_services_interface()))
+{
+  getParameters();
+  vel_pub = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
+  createInteractiveMarkers();
+  RCLCPP_INFO(get_logger(), "[interactive_marker_twist_server] Initialized.");
 }
 
-void MarkerServer::createInteractiveMarkers()
+void TwistServerNode::getParameters()
 {
-  // create an interactive marker for our server
-  InteractiveMarker int_marker;
-  int_marker.header.frame_id = link_name;
-  int_marker.name = robot_name + "_twist_marker";
-  int_marker.description = "twist controller for " + robot_name;
-  int_marker.scale = marker_size_scale;
+  rclcpp::Parameter link_name_param;
+  rclcpp::Parameter robot_name_param;
 
-  InteractiveMarkerControl control;
+  if (this->get_parameter("link_name", link_name_param))
+  {
+    link_name = link_name_param.as_string();
+  }
+  else
+  {
+    link_name = "base_link";
+  }
 
-  control.orientation_mode = InteractiveMarkerControl::FIXED;
+  if (this->get_parameter("robot_name", robot_name_param))
+  {
+    robot_name = robot_name_param.as_string();
+  }
+  else
+  {
+    robot_name = "robot";
+  }
+
+  // Ensure parameters are loaded correctly, otherwise, manually set values for linear config
+  if (this->get_parameters("linear_scale", linear_drive_scale_map))
+  {
+    this->get_parameters("max_positive_linear_velocity", max_positive_linear_velocity_map);
+    this->get_parameters("max_negative_linear_velocity", max_negative_linear_velocity_map);
+  }
+  else
+  {
+    linear_drive_scale_map["x"] = 1.0;
+    max_positive_linear_velocity_map["x"] = 1.0;
+    max_negative_linear_velocity_map["x"] = -1.0;
+  }
+
+  angular_drive_scale = 2.2;
+  max_angular_velocity = 2.2;
+  marker_size_scale = 1.0;
+}
+
+void TwistServerNode::createInteractiveMarkers()
+{
+  visualization_msgs::msg::InteractiveMarker interactive_marker;
+  interactive_marker.header.frame_id = link_name;
+  interactive_marker.name = robot_name + "_twist_marker";
+  interactive_marker.description = "twist controller for " + robot_name;
+  interactive_marker.scale = marker_size_scale;
+
+  visualization_msgs::msg::InteractiveMarkerControl control;
+
+  control.orientation_mode = visualization_msgs::msg::InteractiveMarkerControl::FIXED;
 
   if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
   {
@@ -154,9 +140,10 @@ void MarkerServer::createInteractiveMarkers()
     control.orientation.y = 0;
     control.orientation.z = 0;
     control.name = "move_x";
-    control.interaction_mode = InteractiveMarkerControl::MOVE_AXIS;
-    int_marker.controls.push_back(control);
+    control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
+    interactive_marker.controls.push_back(control);
   }
+
   if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
   {
     control.orientation.w = 1;
@@ -164,9 +151,10 @@ void MarkerServer::createInteractiveMarkers()
     control.orientation.y = 0;
     control.orientation.z = 1;
     control.name = "move_y";
-    control.interaction_mode = InteractiveMarkerControl::MOVE_AXIS;
-    int_marker.controls.push_back(control);
+    control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
+    interactive_marker.controls.push_back(control);
   }
+
   if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
   {
     control.orientation.w = 1;
@@ -174,8 +162,8 @@ void MarkerServer::createInteractiveMarkers()
     control.orientation.y = 1;
     control.orientation.z = 0;
     control.name = "move_z";
-    control.interaction_mode = InteractiveMarkerControl::MOVE_AXIS;
-    int_marker.controls.push_back(control);
+    control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::MOVE_AXIS;
+    interactive_marker.controls.push_back(control);
   }
 
   control.orientation.w = 1;
@@ -183,21 +171,62 @@ void MarkerServer::createInteractiveMarkers()
   control.orientation.y = 1;
   control.orientation.z = 0;
   control.name = "rotate_z";
-  control.interaction_mode = InteractiveMarkerControl::ROTATE_AXIS;
-  int_marker.controls.push_back(control);
+  control.interaction_mode = visualization_msgs::msg::InteractiveMarkerControl::ROTATE_AXIS;
+  interactive_marker.controls.push_back(control);
 
-
-
-  server.insert(int_marker, boost::bind(&MarkerServer::processFeedback, this, _1));
-
-  server.applyChanges();
+  server->insert(interactive_marker);
+  server->setCallback(interactive_marker.name, std::bind(&TwistServerNode::processFeedback, this, std::placeholders::_1));
+  server->applyChanges();
 }
 
-
-int main(int argc, char** argv)
+void TwistServerNode::processFeedback(const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr &feedback)
 {
-  ros::init(argc, argv, "marker_server");
-  MarkerServer server;
+  geometry_msgs::msg::Twist vel_msg;
 
-  ros::spin();
+  // Handle angular change (yaw is the only direction in which you can rotate)
+  double yaw = tf2::getYaw(feedback->pose.orientation);
+  vel_msg.angular.z = angular_drive_scale * yaw;
+  vel_msg.angular.z = std::min(vel_msg.angular.z,  max_angular_velocity);
+  vel_msg.angular.z = std::max(vel_msg.angular.z, -max_angular_velocity);
+
+  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
+  {
+    vel_msg.linear.x = linear_drive_scale_map["x"] * feedback->pose.position.x;
+    vel_msg.linear.x = std::min(vel_msg.linear.x, max_positive_linear_velocity_map["x"]);
+    vel_msg.linear.x = std::max(vel_msg.linear.x, max_negative_linear_velocity_map["x"]);
+  }
+  
+  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
+  {
+    vel_msg.linear.y = linear_drive_scale_map["y"] * feedback->pose.position.y;
+    vel_msg.linear.y = std::min(vel_msg.linear.y, max_positive_linear_velocity_map["y"]);
+    vel_msg.linear.y = std::max(vel_msg.linear.y, max_negative_linear_velocity_map["y"]);
+  }
+
+  if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
+  {
+    vel_msg.linear.z = linear_drive_scale_map["z"] * feedback->pose.position.z;
+    vel_msg.linear.z = std::min(vel_msg.linear.z, max_positive_linear_velocity_map["z"]);
+    vel_msg.linear.z = std::max(vel_msg.linear.z, max_negative_linear_velocity_map["z"]);
+  }
+
+  vel_pub->publish(vel_msg);
+
+  // Make the marker snap back to robot
+  server->setPose(robot_name + "_twist_marker", geometry_msgs::msg::Pose());
+  server->applyChanges();
+}
+
+} // namespace interactive_marker_twist_server
+
+int main(int argc, char ** argv)
+{
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<interactive_marker_twist_server::TwistServerNode>();
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(node);
+  executor.spin();
+  rclcpp::shutdown();
+
+  return 0;
 }

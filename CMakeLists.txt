@@ -1,30 +1,44 @@
-cmake_minimum_required(VERSION 3.0.2)
-
+cmake_minimum_required(VERSION 3.5)
 project(interactive_marker_twist_server)
 
-find_package(catkin REQUIRED COMPONENTS
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(interactive_markers REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(visualization_msgs REQUIRED)
+
+add_executable(${PROJECT_NAME} src/marker_server.cpp)
+ament_target_dependencies(${PROJECT_NAME}
+  geometry_msgs
   interactive_markers
-  roscpp
-  tf
-  visualization_msgs)
+  rclcpp
+  tf2
+  visualization_msgs
+)
 
-catkin_package()
-
-include_directories(${catkin_INCLUDE_DIRS})
-
-add_executable(${PROJECT_NAME} src/marker_server)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 set_target_properties(${PROJECT_NAME}
   PROPERTIES OUTPUT_NAME marker_server PREFIX "")
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-install(DIRECTORY launch config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(TARGETS ${PROJECT_NAME} DESTINATION lib/${PROJECT_NAME})
 
-if(CATKIN_ENABLE_TESTING)
-  find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(launch/interactive_markers.launch)
+install(DIRECTORY
+  launch config
+  DESTINATION share/${PROJECT_NAME}/
+)
 
-  find_package(roslint REQUIRED)
-  roslint_cpp()
-  roslint_add_test()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
+
+ament_package()
