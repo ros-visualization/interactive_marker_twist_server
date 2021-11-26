@@ -11,19 +11,20 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(interactive_markers REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(visualization_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
 
 add_executable(${PROJECT_NAME} src/marker_server.cpp)
 ament_target_dependencies(${PROJECT_NAME}
+  geometry_msgs
   interactive_markers
   rclcpp
   tf2
   visualization_msgs
-  geometry_msgs)
+)
 
 set_target_properties(${PROJECT_NAME}
   PROPERTIES OUTPUT_NAME marker_server PREFIX "")
