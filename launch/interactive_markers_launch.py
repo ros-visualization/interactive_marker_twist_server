@@ -4,6 +4,7 @@ from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+
 def generate_launch_description():
     # Get config type (i.e. linear, planar, or aerial) as argument
     config_arg = DeclareLaunchArgument(
@@ -11,19 +12,20 @@ def generate_launch_description():
         default_value='linear'
     )
 
-    # Append '.yaml' to config type argument to create file name (i.e. 'linear.yaml', 'planar.yaml', or 'aerial.yaml')
+    # Append '.yaml' to config type argument to create file name (i.e. 'linear.yaml', 'planar
+    # yaml', or 'aerial.yaml')
     config_file = SetLaunchConfiguration(
         'config_file',
         [LaunchConfiguration('config'), '.yaml']
     )
-        
+
     # Generate path to config file
     config_file_path = PathJoinSubstitution(
         [FindPackageShare('interactive_marker_twist_server'),
-        'config',
-        LaunchConfiguration('config_file')]
+            'config',
+            LaunchConfiguration('config_file')]
     )
-    
+
     node_interactive_marker_twist_server = Node(
         package='interactive_marker_twist_server',
         executable='marker_server',
