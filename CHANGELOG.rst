@@ -2,8 +2,8 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2022-04-13)
+------------------
 * Add license, contributing, and copyright headers for linter
 * Style changes for linter
 * List dependencies in alphabetical order
