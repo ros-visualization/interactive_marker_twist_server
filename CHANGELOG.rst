@@ -2,6 +2,38 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add license, contributing, and copyright headers for linter
+* Style changes for linter
+* List dependencies in alphabetical order
+* add missing tick
+* add basic usage instructions
+* create ROS2 XML launch file
+* add config argument
+* initial README
+* Re-include standard library headers
+* Cleanup
+* Use SingleThreadedExecutor; change topic name from global to relative; remove logging
+* Remove duplicate imports
+* Change default config file to linear
+* Cleanup CMakeLists.txt and package.xml
+* Rename launch file to follow ROS2 naming convention
+* Disable requirement for declared parameters via node options; uncomment lines to make node work
+* Change values from int to double
+* Launch file
+* Initial launch file
+* Recover descriptions
+* Initialize server in constructor initialization list, readd marker_size_scale, fix getParameters()
+* Make processFeedback() publicly accessible
+* Init createInteractiveMarkers() and processFeedback() methods
+* Initial getParameters() method
+* Port methods
+* Initial functional skeleton ros2 node
+* Remove unused cmd_vel_topic variable (`#18 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/18>`_)
+* Initial migration CMakeLists.txt and package.xml
+* Contributors: Joey Yang, jyang, jyang-cpr
+
 1.2.2 (2021-02-03)
 ------------------
 * Remove the leading '/' from the default link; this causes errors in Noetic
