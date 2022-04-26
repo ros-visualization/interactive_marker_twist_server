@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - foxy-devel
+  pull_request:
+    branches:
+      - foxy-devel
+
+jobs:
+  foxy_ci:
+    name: Foxy CI Job
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v3
+      - name: Setup ROS
+        uses: ros-tooling/setup-ros@v0.3
+        with:
+          required-ros-distributions: foxy
+      - name: Build and Test
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: interactive_marker_twist_server
+          target-ros2-distro: foxy
