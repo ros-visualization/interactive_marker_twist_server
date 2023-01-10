@@ -15,6 +15,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(interactive_markers REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 add_executable(${PROJECT_NAME} src/marker_server.cpp)
@@ -23,6 +24,7 @@ ament_target_dependencies(${PROJECT_NAME}
   interactive_markers
   rclcpp
   tf2
+  tf2_geometry_msgs
   visualization_msgs
 )
 
