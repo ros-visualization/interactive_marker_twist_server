@@ -36,6 +36,7 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <interactive_markers/interactive_marker_server.hpp>
 #include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <algorithm>
 #include <string>
