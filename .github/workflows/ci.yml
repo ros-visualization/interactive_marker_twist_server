@@ -3,24 +3,24 @@ name: CI
 on:
   push:
     branches:
-      - foxy-devel
+      - humble-devel
   pull_request:
     branches:
-      - foxy-devel
+      - humble-devel
 
 jobs:
-  foxy_ci:
-    name: Foxy CI Job
-    runs-on: ubuntu-20.04
+  humble_ci:
+    name: Humble CI Job
+    runs-on: ubuntu-22.04
     steps:
       - name: Clone Repository
         uses: actions/checkout@v3
       - name: Setup ROS
         uses: ros-tooling/setup-ros@v0.3
         with:
-          required-ros-distributions: foxy
+          required-ros-distributions: humble
       - name: Build and Test
         uses: ros-tooling/action-ros-ci@v0.2
         with:
           package-name: interactive_marker_twist_server
-          target-ros2-distro: foxy
+          target-ros2-distro: humble
