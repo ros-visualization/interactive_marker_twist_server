@@ -2,8 +2,8 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.0 (2023-03-06)
+------------------
 * Updated CI for Humble.
 * fix error for tf2_geometry_msgs
 * Add CI workflow
