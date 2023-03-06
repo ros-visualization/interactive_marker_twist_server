@@ -2,6 +2,14 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Updated CI for Humble.
+* fix error for tf2_geometry_msgs
+* Add CI workflow
+* Reorder imports to pass flake8 linter checks
+* Contributors: Byeong-Kyu Ahn, Joey Yang, Tony Baltovski
+
 2.0.0 (2022-04-13)
 ------------------
 * Add license, contributing, and copyright headers for linter
