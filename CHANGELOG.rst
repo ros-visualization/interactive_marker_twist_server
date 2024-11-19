@@ -2,6 +2,13 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed linting.
+* Updated CI for Humble and Jazzy.
+* Add the use_stamped_msgs param to allow support for publishing TwistStamped messages instead of Twist
+* Contributors: Chris Iverach-Brereton, Tony Baltovski
+
 2.1.0 (2023-03-06)
 ------------------
 * Updated CI for Humble.
