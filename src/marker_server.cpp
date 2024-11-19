@@ -90,9 +90,12 @@ TwistServerNode::TwistServerNode()
       get_node_topics_interface(), get_node_services_interface()))
 {
   getParameters();
-  if (use_stamped_msgs) {
+  if (use_stamped_msgs)
+  {
     vel_stamped_pub = create_publisher<geometry_msgs::msg::TwistStamped>("cmd_vel", 1);
-  } else {
+  } 
+  else
+  {
     vel_pub = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
   }
   createInteractiveMarkers();
@@ -105,29 +108,41 @@ void TwistServerNode::getParameters()
   rclcpp::Parameter robot_name_param;
   rclcpp::Parameter use_stamped_msgs_param;
 
-  if (this->get_parameter("link_name", link_name_param)) {
+  if (this->get_parameter("link_name", link_name_param))
+  {
     link_name = link_name_param.as_string();
-  } else {
+  }
+  else
+  {
     link_name = "base_link";
   }
 
-  if (this->get_parameter("robot_name", robot_name_param)) {
+  if (this->get_parameter("robot_name", robot_name_param))
+  {
     robot_name = robot_name_param.as_string();
-  } else {
+  }
+  else
+  {
     robot_name = "robot";
   }
 
-  if (this->get_parameter("use_stamped_msgs", use_stamped_msgs_param)) {
+  if (this->get_parameter("use_stamped_msgs", use_stamped_msgs_param))
+  {
     use_stamped_msgs = use_stamped_msgs_param.as_bool();
-  } else {
+  }
+  else
+  {
     use_stamped_msgs = false;
   }
 
   // Ensure parameters are loaded correctly, otherwise, manually set values for linear config
-  if (this->get_parameters("linear_scale", linear_drive_scale_map)) {
+  if (this->get_parameters("linear_scale", linear_drive_scale_map))
+  {
     this->get_parameters("max_positive_linear_velocity", max_positive_linear_velocity_map);
     this->get_parameters("max_negative_linear_velocity", max_negative_linear_velocity_map);
-  } else {
+  }
+  else
+  {
     linear_drive_scale_map["x"] = 1.0;
     max_positive_linear_velocity_map["x"] = 1.0;
     max_negative_linear_velocity_map["x"] = -1.0;
@@ -150,7 +165,8 @@ void TwistServerNode::createInteractiveMarkers()
 
   control.orientation_mode = visualization_msgs::msg::InteractiveMarkerControl::FIXED;
 
-  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end()) {
+  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
+  {
     control.orientation.w = 1;
     control.orientation.x = 1;
     control.orientation.y = 0;
@@ -160,7 +176,8 @@ void TwistServerNode::createInteractiveMarkers()
     interactive_marker.controls.push_back(control);
   }
 
-  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end()) {
+  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
+  {
     control.orientation.w = 1;
     control.orientation.x = 0;
     control.orientation.y = 0;
@@ -170,7 +187,8 @@ void TwistServerNode::createInteractiveMarkers()
     interactive_marker.controls.push_back(control);
   }
 
-  if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end()) {
+  if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
+  {
     control.orientation.w = 1;
     control.orientation.x = 0;
     control.orientation.y = 1;
@@ -208,27 +226,33 @@ void TwistServerNode::processFeedback(
   vel_msg.angular.z = std::min(vel_msg.angular.z, max_angular_velocity);
   vel_msg.angular.z = std::max(vel_msg.angular.z, -max_angular_velocity);
 
-  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end()) {
+  if (linear_drive_scale_map.find("x") != linear_drive_scale_map.end())
+  {
     vel_msg.linear.x = linear_drive_scale_map["x"] * feedback->pose.position.x;
     vel_msg.linear.x = std::min(vel_msg.linear.x, max_positive_linear_velocity_map["x"]);
     vel_msg.linear.x = std::max(vel_msg.linear.x, max_negative_linear_velocity_map["x"]);
   }
 
-  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end()) {
+  if (linear_drive_scale_map.find("y") != linear_drive_scale_map.end())
+  {
     vel_msg.linear.y = linear_drive_scale_map["y"] * feedback->pose.position.y;
     vel_msg.linear.y = std::min(vel_msg.linear.y, max_positive_linear_velocity_map["y"]);
     vel_msg.linear.y = std::max(vel_msg.linear.y, max_negative_linear_velocity_map["y"]);
   }
 
-  if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end()) {
+  if (linear_drive_scale_map.find("z") != linear_drive_scale_map.end())
+  {
     vel_msg.linear.z = linear_drive_scale_map["z"] * feedback->pose.position.z;
     vel_msg.linear.z = std::min(vel_msg.linear.z, max_positive_linear_velocity_map["z"]);
     vel_msg.linear.z = std::max(vel_msg.linear.z, max_negative_linear_velocity_map["z"]);
   }
 
-  if (use_stamped_msgs) {
+  if (use_stamped_msgs)
+  {
     stampAndPublish(vel_msg);
-  } else {
+  }
+  else
+  {
     vel_pub->publish(vel_msg);
   }
 
@@ -237,7 +261,8 @@ void TwistServerNode::processFeedback(
   server->applyChanges();
 }
 
-void TwistServerNode::stampAndPublish(geometry_msgs::msg::Twist &msg) {
+void TwistServerNode::stampAndPublish(geometry_msgs::msg::Twist &msg)
+{
   geometry_msgs::msg::TwistStamped stamped_msg;
 
   stamped_msg.twist = msg;
