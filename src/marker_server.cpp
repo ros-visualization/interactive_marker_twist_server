@@ -30,6 +30,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <visualization_msgs/msg/interactive_marker.hpp>
 #include <visualization_msgs/msg/interactive_marker_control.hpp>
@@ -60,13 +61,17 @@ public:
 private:
   void getParameters();
   void createInteractiveMarkers();
+  void stampAndPublish(geometry_msgs::msg::Twist &msg);
 
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr vel_pub;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr vel_stamped_pub;
   std::unique_ptr<interactive_markers::InteractiveMarkerServer> server;
 
   std::map<std::string, double> linear_drive_scale_map;
   std::map<std::string, double> max_positive_linear_velocity_map;
   std::map<std::string, double> max_negative_linear_velocity_map;
+
+  bool use_stamped_msgs;
 
   double angular_drive_scale;
   double max_angular_velocity;
@@ -85,7 +90,11 @@ TwistServerNode::TwistServerNode()
       get_node_topics_interface(), get_node_services_interface()))
 {
   getParameters();
-  vel_pub = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
+  if (use_stamped_msgs) {
+    vel_stamped_pub = create_publisher<geometry_msgs::msg::TwistStamped>("cmd_vel", 1);
+  } else {
+    vel_pub = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
+  }
   createInteractiveMarkers();
   RCLCPP_INFO(get_logger(), "[interactive_marker_twist_server] Initialized.");
 }
@@ -94,6 +103,7 @@ void TwistServerNode::getParameters()
 {
   rclcpp::Parameter link_name_param;
   rclcpp::Parameter robot_name_param;
+  rclcpp::Parameter use_stamped_msgs_param;
 
   if (this->get_parameter("link_name", link_name_param)) {
     link_name = link_name_param.as_string();
@@ -105,6 +115,12 @@ void TwistServerNode::getParameters()
     robot_name = robot_name_param.as_string();
   } else {
     robot_name = "robot";
+  }
+
+  if (this->get_parameter("use_stamped_msgs", use_stamped_msgs_param)) {
+    use_stamped_msgs = use_stamped_msgs_param.as_bool();
+  } else {
+    use_stamped_msgs = false;
   }
 
   // Ensure parameters are loaded correctly, otherwise, manually set values for linear config
@@ -210,11 +226,24 @@ void TwistServerNode::processFeedback(
     vel_msg.linear.z = std::max(vel_msg.linear.z, max_negative_linear_velocity_map["z"]);
   }
 
-  vel_pub->publish(vel_msg);
+  if (use_stamped_msgs) {
+    stampAndPublish(vel_msg);
+  } else {
+    vel_pub->publish(vel_msg);
+  }
 
   // Make the marker snap back to robot
   server->setPose(robot_name + "_twist_marker", geometry_msgs::msg::Pose());
   server->applyChanges();
+}
+
+void TwistServerNode::stampAndPublish(geometry_msgs::msg::Twist &msg) {
+  geometry_msgs::msg::TwistStamped stamped_msg;
+
+  stamped_msg.twist = msg;
+  stamped_msg.header.stamp = this->get_clock()->now();
+
+  vel_stamped_pub->publish(stamped_msg);
 }
 
 }  // namespace interactive_marker_twist_server
