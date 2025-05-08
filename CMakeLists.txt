@@ -19,7 +19,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
 add_executable(${PROJECT_NAME} src/marker_server.cpp)
-ament_target_dependencies(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PUBLIC
   geometry_msgs
   interactive_markers
   rclcpp
