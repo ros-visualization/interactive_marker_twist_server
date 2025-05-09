@@ -20,12 +20,12 @@ find_package(visualization_msgs REQUIRED)
 
 add_executable(${PROJECT_NAME} src/marker_server.cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC
-  geometry_msgs
-  interactive_markers
-  rclcpp
-  tf2
-  tf2_geometry_msgs
-  visualization_msgs
+  ${geometry_msgs_TARGETS}
+  ${visualization_msgs_TARGETS}
+  interactive_markers::interactive_markers
+  rclcpp::rclcpp
+  tf2::tf2
+  tf2_geometry_msgs::tf2_geometry_msgs
 )
 
 set_target_properties(${PROJECT_NAME}
