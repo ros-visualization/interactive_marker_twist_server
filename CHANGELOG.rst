@@ -2,6 +2,11 @@
 Changelog for package interactive_marker_twist_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.2 (2025-05-23)
+------------------
+* Update deprecated call to ament_target_dependencies `#29 <https://github.com/ros-visualization/interactive_marker_twist_server/issues/29>`_ from MetroRobotsForks/kilted_dep_fix
+* Contributors: David V. Lu!!
+
 2.1.1 (2024-11-19)
 ------------------
 * Fixed linting.
